@@ -5,6 +5,8 @@ function App() {
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const API_URL = "https://ai-notes-summarizer-2x36.onrender.com";
+
   const handleSummarize = async () => {
     if (!text) {
       alert("Enter some text");
@@ -14,7 +16,7 @@ function App() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/notes/summarize", {
+      const res = await fetch(`${API_URL}/api/notes/summarize`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,7 +38,7 @@ function App() {
     <div style={styles.page}>
       <div style={styles.container}>
 
-        {/* ✅ Header FIXED */}
+        {/* Header */}
         <div style={styles.header}>
           <span style={styles.emoji}>🧠</span>
           <h1 style={styles.titleText}>
@@ -44,6 +46,7 @@ function App() {
           </h1>
         </div>
 
+        {/* Input */}
         <textarea
           placeholder="Paste your notes here..."
           value={text}
@@ -51,10 +54,12 @@ function App() {
           style={styles.textarea}
         />
 
+        {/* Button */}
         <button onClick={handleSummarize} style={styles.button}>
           {loading ? "Summarizing..." : "Summarize"}
         </button>
 
+        {/* Output */}
         <div style={styles.outputBox}>
           <h2 style={{ color: "#333" }}>Summary</h2>
 
