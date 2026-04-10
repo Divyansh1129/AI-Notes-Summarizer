@@ -5,8 +5,6 @@ function App() {
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const API_URL = "https://ai-notes-summarizer-2x36.onrender.com";
-
   const handleSummarize = async () => {
     if (!text) {
       alert("Enter some text");
@@ -16,16 +14,25 @@ function App() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/api/notes/summarize`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ text }),
-      });
+      const res = await fetch(
+        "https://ai-backend-shpw.onrender.com/api/notes/summarize",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ text }),
+        }
+      );
 
       const data = await res.json();
-      setSummary(data.summary || "No summary received");
+
+      if (!res.ok) {
+        setSummary(data.error || "Backend error");
+      } else {
+        setSummary(data.summary || "No summary received");
+      }
+
     } catch (error) {
       console.error(error);
       setSummary("Error connecting to backend");
@@ -38,7 +45,6 @@ function App() {
     <div style={styles.page}>
       <div style={styles.container}>
 
-        {/* Header */}
         <div style={styles.header}>
           <span style={styles.emoji}>🧠</span>
           <h1 style={styles.titleText}>
@@ -46,7 +52,6 @@ function App() {
           </h1>
         </div>
 
-        {/* Input */}
         <textarea
           placeholder="Paste your notes here..."
           value={text}
@@ -54,12 +59,10 @@ function App() {
           style={styles.textarea}
         />
 
-        {/* Button */}
         <button onClick={handleSummarize} style={styles.button}>
           {loading ? "Summarizing..." : "Summarize"}
         </button>
 
-        {/* Output */}
         <div style={styles.outputBox}>
           <h2 style={{ color: "#333" }}>Summary</h2>
 

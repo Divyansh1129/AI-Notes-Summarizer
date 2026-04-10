@@ -7,15 +7,20 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: "*"
+}));
 app.use(express.json());
 
-// Test route
+// ✅ Debug: Check API key
+console.log("OPENROUTER API KEY:", process.env.OPENROUTER_API_KEY);
+
+// ✅ Test route
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-// 🔥 FREE AI Summarizer Route
+// 🔥 AI Summarizer Route
 app.post("/api/notes/summarize", async (req, res) => {
   try {
     const { text } = req.body;
@@ -27,7 +32,7 @@ app.post("/api/notes/summarize", async (req, res) => {
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       {
-        model: "meta-llama/llama-3-8b-instruct", // FREE model
+        model: "meta-llama/llama-3-8b-instruct",
         messages: [
           {
             role: "user",
@@ -37,25 +42,32 @@ app.post("/api/notes/summarize", async (req, res) => {
       },
       {
         headers: {
-          "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
           "Content-Type": "application/json",
+          "HTTP-Referer": "https://ai-backend-shpw.onrender.com",
+          "X-Title": "AI Notes Summarizer",
         },
       }
     );
 
-    const summary = response.data.choices[0].message.content;
+    const summary =
+      response.data.choices?.[0]?.message?.content ||
+      "No summary generated";
 
     res.json({ summary });
 
   } catch (error) {
     console.error("FULL ERROR:", error.response?.data || error.message);
-    res.status(500).json({ error: "Failed to generate summary" });
+    res.status(500).json({
+      error: "Failed to generate summary",
+      details: error.response?.data || error.message,
+    });
   }
 });
 
-// Start server
+// ✅ Start server
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
